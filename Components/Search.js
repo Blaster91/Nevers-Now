@@ -5,7 +5,8 @@ import {
   Button,
   TextInput,
   FlatList,
-  Text
+  Text,
+  ActivityIndicator
 } from 'react-native'
 import FilmItem from './FilmItem.js'
 import { getFilmsFromApiWithSearchedText } from '../API/TMDBApi.js'
@@ -19,25 +20,40 @@ class Search extends React.Component {
   super(props)
   this.state = {
     films: [],
+    isLoading: false
   }
   this.searchedText = ""
 }
 
 
 _loadFilms() {
+  this.setState({ isLoading: true})
   if (this.searchedText.length > 0) {
-    getFilmsFromApiWithSearchedText(this.searchedText).then(data => this.setState({ films: data.results }))
+    getFilmsFromApiWithSearchedText(this.searchedText).then(data =>
+      this.setState({
+         films: data.results,
+         isLoading: false
+        }))
   }
  }
+_displayLoading(){
+  if(this.state.isLoading) {
+    return (
+      <View style={styles.loading_container}>
+        <ActivityIndicator size='large' />
+      </View>
+    )
+  }
+}
 _searchTextInputChanged(text) {
   this.searchedText = text
 }
   render(){
-    console.log("rechercher");
+    console.log(this.state.isLoading);
     return (
       <View style={styles.main_container}>
       <View style={styles.main_container1}>
-        <TextInput onChangeText={(text) => this._searchTextInputChanged(text)} style={styles.textinput}  placeholder="Titre du film"/>
+        <TextInput onSubmitEditing={() => this._loadFilms()} onChangeText={(text) => this._searchTextInputChanged(text)} style={styles.textinput}  placeholder="Titre du film"/>
         <Button style={{height: 50}} title="Rechercher" onPress={() =>this._loadFilms()}/>
       </View>
         <View style={styles.main_container2}>
@@ -46,6 +62,7 @@ _searchTextInputChanged(text) {
           keyExtractor={(item) => item.id.toString()}
           renderItem={({item}) => <FilmItem film={item}/>}
           />
+          {this._displayLoading()}
         </View>
       </View>
 
@@ -79,6 +96,15 @@ const styles = StyleSheet.create({
     paddingLeft: 5,
     backgroundColor: 'white',
     marginBottom: 5
+  },
+  loading_container: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 100,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 })
 
