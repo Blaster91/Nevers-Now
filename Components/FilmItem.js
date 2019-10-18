@@ -19,10 +19,11 @@ class FilmItem extends React.Component {
             {/* La propriété numberOfLines permet de couper un texte si celui-ci est trop long, il suffit de définir un nombre maximum de ligne */}
           </View>
           <View style={styles.date_container}>
-            <Text style={styles.date_text}>Sorti le {film.release_date}</Text>
+            <Text style={styles.date_text}>Date de sorti: {film.release_date}</Text>
           </View>
         </View>
       </View>
+
     )
   }
 }
@@ -70,8 +71,8 @@ const styles = StyleSheet.create({
     flex: 1
   },
   date_text: {
-    textAlign: 'right',
-    fontSize: 14
+    textAlign: 'left',
+    fontSize: 10
   }
 })
 
