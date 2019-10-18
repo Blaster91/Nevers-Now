@@ -15,74 +15,74 @@ import { getFilmsFromApiWithSearchedText } from '../API/TMDBApi.js'
 
 
 class Search extends React.Component {
-
   constructor(props) {
-      super(props)
-      this.searchedText = ""
-      this.page = 0 // Compteur pour connaître la page courante
-      this.totalPages = 0 // Nombre de pages totales pour savoir si on a atteint la fin des retours de l'API TMDB
-      this.state = {
-        films: [],
-        isLoading: false
-      }
+    super(props)
+    this.searchedText = ""
+    this.page = 0
+    this.totalPages = 0
+    this.state = {
+      films: [],
+      isLoading: false
+    }
   }
-
-
-  // Components/Search.js
 
   _loadFilms() {
-      if (this.searchedText.length > 0) {
-        this.setState({ isLoading: true })
-        getFilmsFromApiWithSearchedText(this.searchedText, this.page+1).then(data => {
-            this.page = data.page
-            this.totalPages = data.total_pages
-            this.setState({
-              films: [ ...this.state.films, ...data.results ],
-              isLoading: false
-            })
-        })
-      }
+    if (this.searchedText.length > 0) {
+      this.setState({ isLoading: true })
+      getFilmsFromApiWithSearchedText(this.searchedText, this.page+1).then(data => {
+          this.page = data.page
+          this.totalPages = data.total_pages
+          this.setState({
+            films: [ ...this.state.films, ...data.results ],
+            isLoading: false
+          })
+      })
+    }
   }
-_displayLoading(){
-  if(this.state.isLoading) {
-    return (
-      <View style={styles.loading_container}>
-        <ActivityIndicator size='large' />
-      </View>
-    )
+
+  _searchTextInputChanged(text) {
+    this.searchedText = text
   }
-}
-_searchFilms(){
-  this.page = 0
-  this.totalPages = 0
-  this.setState({
-    films: []
-  })
-  console.log("Page : " + this.page + " / totalPages : " + this.totalPages + " / nombre de films : " + this.state.films.length)
-  this._loadFilms()
-}
-_searchTextInputChanged(text) {
-  this.searchedText = text
-}
+
+  _searchFilms() {
+    this.page = 0
+    this.totalPages = 0
+    this.setState({
+      films: [],
+    }, () => {
+      console.log(this.page + "page(s)" + this.totalPages + "au total")
+        this._loadFilms()
+    })
+  }
+
+  _displayLoading() {
+    if (this.state.isLoading) {
+      return (
+        <View style={styles.loading_container}>
+          <ActivityIndicator size='large' />
+        </View>
+      )
+    }
+  }
   render(){
     console.log(this.state.isLoading);
     return (
       <View style={styles.main_container}>
       <View style={styles.main_container1}>
         <TextInput onSubmitEditing={() => this._loadFilms()} onChangeText={(text) => this._searchTextInputChanged(text)} style={styles.textinput}  placeholder="Titre du film"/>
-        <Button style={{height: 50}} title="Rechercher" onPress={() =>this._searchFilms()}/>
+        <Button style={{height: 50}} title="Rechercher" onPress={() =>this._loadFilms()}/>
       </View>
         <View style={styles.main_container2}>
           <FlatList
           data={this.state.films}
           keyExtractor={(item) => item.id.toString()}
+          renderItem={({item}) => <FilmItem film={item}/>}
           onEndReachThreashold={0.5}
           onEndReached={() => {
             if (this.page < this.totalPages){
               this._loadFilms()
             }
           }}
-          renderItem={({item}) => <FilmItem film={item}/>}
           />
           {this._displayLoading()}
         </View>
