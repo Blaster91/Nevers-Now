@@ -13,7 +13,6 @@ import { getFilmsFromApiWithSearchedText } from '../API/TMDBApi.js'
 
 
 
-
 class Search extends React.Component {
   constructor(props) {
     super(props)
@@ -50,7 +49,6 @@ class Search extends React.Component {
     this.setState({
       films: [],
     }, () => {
-      console.log(this.page + "page(s)" + this.totalPages + "au total")
         this._loadFilms()
     })
   }
@@ -64,25 +62,30 @@ class Search extends React.Component {
       )
     }
   }
+
+  _displayDetailForFilm = (idFilm) => {
+      this.props.navigation.navigate("FilmDetail", { idFilm: idFilm })
+  }
+
   render(){
-    console.log(this.state.isLoading);
     return (
       <View style={styles.main_container}>
       <View style={styles.main_container1}>
-        <TextInput onSubmitEditing={() => this._loadFilms()} onChangeText={(text) => this._searchTextInputChanged(text)} style={styles.textinput}  placeholder="Titre du film"/>
-        <Button style={{height: 50}} title="Rechercher" onPress={() =>this._loadFilms()}/>
+        <TextInput onSubmitEditing={() => this._searchFilms()} onChangeText={(text) => this._searchTextInputChanged(text)} style={styles.textinput}  placeholder="Titre du film"/>
+        <Button style={{height: 160}} title="Rechercher" onPress={() =>this._searchFilms()}/>
       </View>
         <View style={styles.main_container2}>
           <FlatList
           data={this.state.films}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={({item}) => <FilmItem film={item}/>}
+
           onEndReachThreashold={0.5}
           onEndReached={() => {
             if (this.page < this.totalPages){
               this._loadFilms()
             }
           }}
+          renderItem={({item}) => <FilmItem film={item} displayDetailForFilm={this._displayDetailForFilm}/>}
           />
           {this._displayLoading()}
         </View>
@@ -94,7 +97,6 @@ class Search extends React.Component {
 
 const styles = StyleSheet.create({
   main_container: {
-    marginTop: 20,
     flex: 1,
     backgroundColor: 'white',
     width: "100%",
